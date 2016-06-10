@@ -8,13 +8,32 @@ import Network.HTTP.Client.TLS( tlsManagerSettings )
 import qualified Data.ByteString.Lazy.Char8 as C
 import Data.Maybe( fromJust )
 import Data.String( fromString )
+import Data.Aeson
+import Control.Monad( mzero )
+
+type JobId = String
+
+newtype SearchResult = SearchResult { jobs :: [JobResult] }
+newtype JobResult = JobResult JobId
+instance FromJSON JobResult where
+  parseJSON (Object v) = JobResult <$>
+                         v .: "id"
+  parseJSON _ = mzero
+instance FromJSON SearchResult where 
+  parseJSON (Object v) = SearchResult <$>
+                         v .: "jobs"
+  parseJSON _ = mzero
 
 base = "https://www.upwork.com"
-authBase = base ++ "/api/auth/v1/oauth/token"
-jobsLoc = base ++ "/api/profiles/v2/search/jobs.json"
+interfaceBase = base ++ "/api"
+authBase = interfaceBase ++ "/auth/v1/oauth/token"
+jobsLoc = interfaceBase ++ "/profiles/v2/search/jobs.json"
 
 getJobs :: Request
 getJobs = fromJust (parseUrl jobsLoc)
+
+getJob :: JobId -> Request
+getJob id = fromJust (parseUrl (interfaceBase ++ "/hr/v2/jobs/"++id++".json"))
 
 queryAll = setQueryString [("q", Just "*")]
 
@@ -41,6 +60,12 @@ getCredential oauth = do
 
 askForJobs oauth tokenCredentials = do
   signed <- signOAuth oauth tokenCredentials (queryAll getJobs)
+  manager <- newManager tlsManagerSettings
+  response <- httpLbs signed manager
+  C.putStrLn (responseBody response)
+
+askForJob oauth tokenCredentials id = do
+  signed <- signOAuth oauth tokenCredentials (getJob id)
   manager <- newManager tlsManagerSettings
   response <- httpLbs signed manager
   C.putStrLn (responseBody response)
