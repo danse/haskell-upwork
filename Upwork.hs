@@ -33,7 +33,8 @@ getJobs :: Request
 getJobs = fromJust (parseUrl jobsLoc)
 
 getJob :: JobId -> Request
-getJob id = fromJust (parseUrl (interfaceBase ++ "/hr/v2/jobs/"++id++".json"))
+getJob id = fromJust (parseUrl (interfaceBase ++ "/profiles/v1/jobs/"++id++".json"))
+
 
 queryAll = setQueryString [("q", Just "*")]
 
