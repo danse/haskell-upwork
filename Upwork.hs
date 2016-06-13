@@ -53,9 +53,6 @@ getJobs = fromJust (parseUrl jobsLoc)
 getJob :: JobId -> Request
 getJob id = fromJust (parseUrl (interfaceBase ++ "/profiles/v1/jobs/"++id++".json"))
 
-
-queryAll = setQueryString [("q", Just "*")]
-
 -- https://developers.upwork.com/?lang=python#authentication_oauth-10
 makeOAuth key secret = 
   def {
@@ -77,8 +74,8 @@ getCredential oauth = do
   putStrLn $ "you pasted `"++ verifier ++"`"
   getAccessToken oauth (injectVerifier (fromString verifier) temporaryCredential) manager
 
-askForJobs oauth tokenCredentials = do
-  signed <- signOAuth oauth tokenCredentials (queryAll getJobs)
+askForJobs oauth tokenCredentials query = do
+  signed <- signOAuth oauth tokenCredentials ((setQueryString query) getJobs)
   manager <- newManager tlsManagerSettings
   response <- httpLbs signed manager
   C.putStrLn (responseBody response)
