@@ -14,14 +14,32 @@ import Control.Monad( mzero )
 type JobId = String
 
 newtype SearchResult = SearchResult { jobs :: [JobResult] }
-newtype JobResult = JobResult JobId
 instance FromJSON JobResult where
   parseJSON (Object v) = JobResult <$>
                          v .: "id"
   parseJSON _ = mzero
+newtype JobResult = JobResult JobId
 instance FromJSON SearchResult where 
   parseJSON (Object v) = SearchResult <$>
                          v .: "jobs"
+  parseJSON _ = mzero
+newtype JobProfileResponse = JobProfileResponse {
+  profile :: JobProfile
+  }
+instance FromJSON JobProfileResponse where
+  parseJSON (Object v) = JobProfileResponse <$>
+                         v .: "profile"
+  parseJSON _ = mzero
+data JobProfile = JobProfile {
+  opTotCand :: String,
+  opTitle :: String,
+  cyphertext :: String
+  } deriving Show
+instance FromJSON JobProfile where
+  parseJSON (Object v) = JobProfile <$>
+                         v .: "op_tot_cand" <*>
+                         v .: "op_title" <*>
+                         v .: "ciphertext"
   parseJSON _ = mzero
 
 base = "https://www.upwork.com"
