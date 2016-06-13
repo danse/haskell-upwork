@@ -46,12 +46,15 @@ base = "https://www.upwork.com"
 interfaceBase = base ++ "/api"
 authBase = interfaceBase ++ "/auth/v1/oauth/token"
 jobsLoc = interfaceBase ++ "/profiles/v2/search/jobs.json"
+categoriesLoc = interfaceBase ++ "/profiles/v2/metadata/categories.json"
 
 getJobs :: Request
 getJobs = fromJust (parseUrl jobsLoc)
 
 getJob :: JobId -> Request
 getJob id = fromJust (parseUrl (interfaceBase ++ "/profiles/v1/jobs/"++id++".json"))
+
+getCategories = fromJust (parseUrl categoriesLoc)
 
 -- https://developers.upwork.com/?lang=python#authentication_oauth-10
 makeOAuth key secret = 
@@ -85,3 +88,10 @@ askForJob oauth tokenCredentials id = do
   manager <- newManager tlsManagerSettings
   response <- httpLbs signed manager
   C.putStrLn (responseBody response)
+
+askForCategories oauth tokenCredentials = do
+  signed <- signOAuth oauth tokenCredentials getCategories
+  manager <- newManager tlsManagerSettings
+  response <- httpLbs signed manager
+  C.putStrLn (responseBody response)
+
