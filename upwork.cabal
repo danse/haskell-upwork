@@ -2,7 +2,7 @@
 -- documentation, see http://haskell.org/cabal/users-guide/
 
 name:                upwork
-version:             0.2.2.0
+version:             0.3.0.0
 -- synopsis:            
 -- description:         
 -- license:             
@@ -23,7 +23,6 @@ library
                        authenticate-oauth,
                        http-client,
                        network-uri,
-                       bytestring,
                        http-client-tls,
                        aeson
   -- hs-source-dirs:      

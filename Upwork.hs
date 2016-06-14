@@ -5,7 +5,6 @@ module Upwork where
 import Web.Authenticate.OAuth
 import Network.HTTP.Client
 import Network.HTTP.Client.TLS( tlsManagerSettings )
-import qualified Data.ByteString.Lazy.Char8 as C
 import Data.Maybe( fromJust )
 import Data.String( fromString )
 import Data.Aeson
@@ -82,18 +81,15 @@ getCredential oauth = do
 askForJobs oauth tokenCredentials query = do
   signed <- signOAuth oauth tokenCredentials ((setQueryString query) getJobs)
   manager <- newManager tlsManagerSettings
-  response <- httpLbs signed manager
-  C.putStrLn (responseBody response)
+  httpLbs signed manager
 
 askForJob oauth tokenCredentials id = do
   signed <- signOAuth oauth tokenCredentials (getJob id)
   manager <- newManager tlsManagerSettings
-  response <- httpLbs signed manager
-  C.putStrLn (responseBody response)
+  httpLbs signed manager
 
 askForCategories oauth tokenCredentials = do
   signed <- signOAuth oauth tokenCredentials getCategories
   manager <- newManager tlsManagerSettings
-  response <- httpLbs signed manager
-  C.putStrLn (responseBody response)
+  httpLbs signed manager
 
