@@ -32,7 +32,7 @@ instance FromJSON JobProfileResponse where
 data JobProfile = JobProfile {
   opTotCand :: String,
   opTitle :: String,
-  cyphertext :: String,
+  id :: String,
   opContractorTier :: String
   } deriving (Show, Read)
 instance FromJSON JobProfile where
