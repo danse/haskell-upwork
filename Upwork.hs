@@ -22,25 +22,36 @@ instance FromJSON SearchResult where
   parseJSON (Object v) = SearchResult <$>
                          v .: "jobs"
   parseJSON _ = mzero
-newtype JobProfileResponse = JobProfileResponse {
-  profile :: JobProfile
-  }
+newtype JobProfileResponse = JobProfileResponse { profile :: JobProfile }
 instance FromJSON JobProfileResponse where
   parseJSON (Object v) = JobProfileResponse <$>
                          v .: "profile"
+  parseJSON _ = mzero
+-- there is a superfluous wrapper around the candidates array
+newtype Candidates = Candidates { wrapper :: [Candidate] } deriving (Show, Read)
+instance FromJSON Candidates where
+  parseJSON (Object v) = Candidates <$>
+                         v .: "candidate"
+  parseJSON _ = mzero
+newtype Candidate = Candidate { createDateTs :: String } deriving (Show, Read)
+instance FromJSON Candidate where
+  parseJSON (Object v) = Candidate <$>
+                         v .: "create_date_ts"
   parseJSON _ = mzero
 data JobProfile = JobProfile {
   opTotCand :: String,
   opTitle :: String,
   id :: String,
-  opContractorTier :: String
+  opContractorTier :: String,
+  candidates :: Candidates
   } deriving (Show, Read)
 instance FromJSON JobProfile where
   parseJSON (Object v) = JobProfile <$>
                          v .: "op_tot_cand" <*>
                          v .: "op_title" <*>
                          v .: "ciphertext" <*>
-                         v .: "op_contractor_tier"
+                         v .: "op_contractor_tier" <*>
+                         v .: "candidates"
   parseJSON _ = mzero
 
 base = "https://www.upwork.com"
