@@ -43,7 +43,8 @@ data JobProfile = JobProfile {
   opTitle :: String,
   id :: String,
   opContractorTier :: String,
-  candidates :: Candidates
+  candidates :: Candidates,
+  intervieweesTotalActive :: String
   } deriving (Show, Read)
 instance FromJSON JobProfile where
   parseJSON (Object v) = JobProfile <$>
@@ -51,7 +52,8 @@ instance FromJSON JobProfile where
                          v .: "op_title" <*>
                          v .: "ciphertext" <*>
                          v .: "op_contractor_tier" <*>
-                         v .: "candidates"
+                         v .: "candidates" <*>
+                         v .: "interviewees_total_active"
   parseJSON _ = mzero
 
 base = "https://www.upwork.com"
