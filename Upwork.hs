@@ -28,15 +28,34 @@ instance FromJSON JobProfileResponse where
                          v .: "profile"
   parseJSON _ = mzero
 -- there is a superfluous wrapper around the candidates array
-newtype Candidates = Candidates { wrapper :: [Candidate] } deriving (Show, Read)
+newtype Candidates = Candidates {
+  candidatesWrapper :: [Candidate]
+  } deriving (Show, Read)
+-- there is a superfluous wrapper around the assignments array
+newtype Assignments = Assignments {
+  assignmentsWrapper :: [Assignment]
+  } deriving (Show, Read)
 instance FromJSON Candidates where
   parseJSON (Object v) = Candidates <$>
                          v .: "candidate"
+  parseJSON _ = mzero
+instance FromJSON Assignments where
+  parseJSON (Object v) = Assignments <$>
+                         v .: "assignment"
   parseJSON _ = mzero
 newtype Candidate = Candidate { createDateTs :: String } deriving (Show, Read)
 instance FromJSON Candidate where
   parseJSON (Object v) = Candidate <$>
                          v .: "create_date_ts"
+  parseJSON _ = mzero
+data Assignment = Assignment {
+  asTotalHours :: String,
+  asRate :: String
+  } deriving (Show, Read)
+instance FromJSON Assignment where
+  parseJSON (Object v) = Assignment <$>
+                         v .: "as_total_hours" <*>
+                         v .: "as_rate"
   parseJSON _ = mzero
 data JobProfile = JobProfile {
   opTotCand :: String,
@@ -44,6 +63,7 @@ data JobProfile = JobProfile {
   id :: String,
   opContractorTier :: String,
   candidates :: Candidates,
+  assignments :: Assignments,
   intervieweesTotalActive :: String,
   opHighHourlyRateAll :: String
   } deriving (Show, Read)
@@ -54,6 +74,7 @@ instance FromJSON JobProfile where
                          v .: "ciphertext" <*>
                          v .: "op_contractor_tier" <*>
                          v .: "candidates" <*>
+                         v .: "assignments" <*>
                          v .: "interviewees_total_active" <*>
                          v .: "op_high_hourly_rate_all"
   parseJSON _ = mzero
