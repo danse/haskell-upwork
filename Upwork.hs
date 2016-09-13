@@ -74,7 +74,7 @@ instance FromJSON JobProfile where
                          v .: "ciphertext" <*>
                          v .: "op_contractor_tier" <*>
                          v .: "candidates" <*>
-                         v .: "assignments" <*>
+                         v .:? "assignments" .!= Assignments [] <*>
                          v .: "interviewees_total_active" <*>
                          v .: "op_high_hourly_rate_all"
   parseJSON _ = mzero
