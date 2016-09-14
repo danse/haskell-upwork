@@ -43,8 +43,7 @@ instance FromJSON Assignments where
   parseJSON (Object v) = Assignments <$>
                          v .: "assignment"
   -- sometimes `assignments` will have as a value an empty string
-  parseJSON _ = const (Assignments []) <$>
-                mzero
+  parseJSON _ = pure (Assignments [])
 newtype Candidate = Candidate { createDateTs :: String } deriving (Show, Read)
 instance FromJSON Candidate where
   parseJSON (Object v) = Candidate <$>
