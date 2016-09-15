@@ -8,7 +8,9 @@ import Network.HTTP.Client.TLS( tlsManagerSettings )
 import Data.Maybe( fromJust )
 import Data.String( fromString )
 import Data.Aeson
+import Data.Aeson.Types( Parser )
 import Control.Monad( mzero )
+import Data.Foldable( toList )
 
 type JobId = String
 
@@ -31,9 +33,16 @@ instance FromJSON JobProfileResponse where
 newtype Candidates = Candidates {
   candidatesWrapper :: [Candidate]
   } deriving (Show, Read)
+-- assignments can be one or many
+data OneOrMany a = One a | Many [a] deriving (Show, Read)
+parseJSONOneOrMany :: FromJSON a => Value -> Parser (OneOrMany a)
+parseJSONOneOrMany (Object v) = One <$> parseJSON (Object v)
+parseJSONOneOrMany (Array v)  = Many <$> mapM parseJSON (toList v)
+parseJSONOneOrMany _ = mzero
+instance (FromJSON a) => FromJSON (OneOrMany a) where parseJSON = parseJSONOneOrMany
 -- there is a superfluous wrapper around the assignments array
 newtype Assignments = Assignments {
-  assignmentsWrapper :: [Assignment]
+  assignmentsWrapper :: OneOrMany Assignment
   } deriving (Show, Read)
 instance FromJSON Candidates where
   parseJSON (Object v) = Candidates <$>
@@ -43,7 +52,7 @@ instance FromJSON Assignments where
   parseJSON (Object v) = Assignments <$>
                          v .: "assignment"
   -- sometimes `assignments` will have as a value an empty string
-  parseJSON _ = pure (Assignments [])
+  parseJSON _ = pure (Assignments (Many []))
 newtype Candidate = Candidate { createDateTs :: String } deriving (Show, Read)
 instance FromJSON Candidate where
   parseJSON (Object v) = Candidate <$>
@@ -75,7 +84,7 @@ instance FromJSON JobProfile where
                          v .: "ciphertext" <*>
                          v .: "op_contractor_tier" <*>
                          v .: "candidates" <*>
-                         v .:? "assignments" .!= Assignments [] <*>
+                         v .:? "assignments" .!= Assignments (Many []) <*>
                          v .: "interviewees_total_active" <*>
                          v .: "op_high_hourly_rate_all"
   parseJSON _ = mzero
