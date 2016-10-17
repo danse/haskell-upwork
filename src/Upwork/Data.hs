@@ -24,7 +24,7 @@ instance FromJSON SearchResult where
   parseJSON (Object v) = SearchResult <$>
                          v .: "jobs"
   parseJSON _ = mzero
-newtype JobProfileResponse = JobProfileResponse { profile :: JobProfile }
+newtype JobProfileResponse = JobProfileResponse { profile :: JobProfile } deriving Show
 instance FromJSON JobProfileResponse where
   parseJSON (Object v) = JobProfileResponse <$>
                          v .: "profile"
@@ -58,6 +58,11 @@ instance FromJSON Candidate where
   parseJSON (Object v) = Candidate <$>
                          v .: "create_date_ts"
   parseJSON _ = mzero
+newtype Buyer = Buyer { opTotCharge :: String } deriving (Show, Read)
+instance FromJSON Buyer where
+  parseJSON (Object v) = Buyer <$>
+                         v .: "op_tot_charge"
+  parseJSON _ = mzero
 data Assignment = Assignment {
   asTotalHours :: String,
   asRate :: String
@@ -73,9 +78,11 @@ data JobProfile = JobProfile {
   id :: String,
   opContractorTier :: String,
   candidates :: Candidates,
+  buyer :: Buyer,
   assignments :: Assignments,
   intervieweesTotalActive :: String,
-  opHighHourlyRateAll :: String
+  opHighHourlyRateAll :: String,
+  amount :: String
   } deriving (Show, Read)
 instance FromJSON JobProfile where
   parseJSON (Object v) = JobProfile <$>
@@ -84,7 +91,9 @@ instance FromJSON JobProfile where
                          v .: "ciphertext" <*>
                          v .: "op_contractor_tier" <*>
                          v .: "candidates" <*>
+                         v .: "buyer" <*>
                          v .:? "assignments" .!= Assignments (Many []) <*>
                          v .: "interviewees_total_active" <*>
-                         v .: "op_high_hourly_rate_all"
+                         v .: "op_high_hourly_rate_all" <*>
+                         v .: "amount"
   parseJSON _ = mzero
