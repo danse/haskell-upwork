@@ -48,18 +48,17 @@ getCredential oauth = do
   putStrLn $ "you pasted `"++ verifier ++"`"
   getAccessToken oauth (injectVerifier (fromString verifier) temporaryCredential) manager
 
-askForJobs oauth tokenCredentials query = do
-  signed <- signOAuth oauth tokenCredentials ((setQueryString query) getJobs)
+-- this signature can be curried easily to perform requests
+performRequest oauth tokenCredentials request = do
+  signed <- signOAuth oauth tokenCredentials request
   manager <- newManager tlsManagerSettings
   httpLbs signed manager
 
-askForJob oauth tokenCredentials id = do
-  signed <- signOAuth oauth tokenCredentials (getJob id)
-  manager <- newManager tlsManagerSettings
-  httpLbs signed manager
+-- this signature allows to preserve the existing interface factoring
+-- out the authentication
+addAuth f o t p = performRequest o t (f p)
 
-askForCategories oauth tokenCredentials = do
-  signed <- signOAuth oauth tokenCredentials getCategories
-  manager <- newManager tlsManagerSettings
-  httpLbs signed manager
-
+jobsRequest query = (setQueryString query) getJobs
+askForJobs = addAuth jobsRequest
+askForJob = addAuth getJob
+askForCategories o t =  performRequest o t getCategories
