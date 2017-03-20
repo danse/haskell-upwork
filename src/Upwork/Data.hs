@@ -82,7 +82,9 @@ data JobProfile = JobProfile {
   assignments :: Assignments,
   intervieweesTotalActive :: String,
   opHighHourlyRateAll :: String,
-  amount :: String
+  amount :: String,
+  engagementWeeks :: String,
+  opEngagement :: String
   } deriving (Show, Read)
 instance FromJSON JobProfile where
   parseJSON (Object v) = JobProfile <$>
@@ -95,5 +97,7 @@ instance FromJSON JobProfile where
                          v .:? "assignments" .!= Assignments (Many []) <*>
                          v .: "interviewees_total_active" <*>
                          v .: "op_high_hourly_rate_all" <*>
-                         v .: "amount"
+                         v .: "amount" <*>
+                         v .: "engagement_weeks" <*>
+                         v .: "op_engagement"
   parseJSON _ = mzero
