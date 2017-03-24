@@ -13,3 +13,6 @@ the following endpoints are bound:
 - job profile
 - categories
 
+##### References
+
+[Upwork's Programming Interface reference](https://developers.upwork.com)
